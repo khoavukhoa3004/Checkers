@@ -1,6 +1,7 @@
 import string
 from rule import *
 from data import data
+import numpy as np
 
 ''''
 player = True: lấy max
@@ -11,6 +12,8 @@ class Node:
    def __init__(self, player: bool, playerFirst: bool, path) -> None:
       '''
       self.child: là danh sách các node kế lưu trữ dựa trên [currentPos,nextPos]
+      player = True: player1
+      player = False: player2
       '''
       self.child = []
       self.path = path
@@ -277,15 +280,118 @@ class Minimax:
       while m >= 0:
          self.root[prePath[m][0][0]][prePath[m][0][1]] = prePath[m][1]
          m -= 1
+   def countForState(self):
+      ans = [0,0,0,0,0,0,0]
+      # (own_pieces, opp_pieces, own_kings, opp_kings, own_edges, own_vert_center_mass, opp_vert_center_mass)
+      countPlayer1 = 0
+      countPlayer1King = 0
+      countPlayer2 = 0
+      countPlayer2King = 0
+      own_edges = 0
+      massPlayer1 = 0
+      massPlayer2 = 0
+      for i in range(8):
+         for j in range(8):
+            if self.humanFirst:
+               if self.root[i][j] in [1,3]:
+                  countPlayer2 += 1
+                  if self.root[i][j] == 3:
+                     countPlayer2King += 1
+                  ans[6] += i
+               elif self.root[i][j] in [2,4]:
+                  countPlayer1 += 1
+                  if self.root[i][j] == 4:
+                     countPlayer1King += 1
+                  ans[5] += i
+                  if (i == 0 and (j in [1,5])) or (i == 3 and (j in [2,6])):
+                     own_edges += 1
+            else:
+               if self.root[i][j] in [1,3]:
+                  countPlayer1 += 1
+                  if self.root[i][j] == 3:
+                     countPlayer1King += 1
+                  ans[5] += i
+                  if (i == 0 and (j in [1,5])) or (i == 3 and (j in [2,6])):
+                     own_edges += 1
+               elif self.root[i][j] in [2, 4]:
+                  countPlayer2 += 1
+                  if self.root[i][j] == 4:
+                     countPlayer2King += 1
+                  ans[6] += i
+      ans[0] = countPlayer1 - countPlayer1King #own_pieces
+      ans[1] = countPlayer2 - countPlayer2King #opp_pieces
+      ans[2] = countPlayer1King                #own_kings
+      ans[3] = countPlayer2King                #opp_kings
+      ans[4] = own_edges                       #own_edges
+      if countPlayer1 != 0:
+         ans[5] = ans[5]/countPlayer1
+      else:
+         ans[5] = 0
+      if countPlayer2 != 0:
+         ans[6] = ans[6]/countPlayer2          #
+      else:
+         ans[6] = 0
+      return ans
+
 
    def value(self)->int:
       return self.countPlayer1 - self.countPlayer2
       #return self.countPlayer1 - self.countPlayer2 + self.countPlayer1King*2 - self.countPlayer2King*2
-   def qLearning(self):
-      '''
-      lưu ý: getNext và getBack xử lý trên self.root.
 
+   def getStateFromMatrix(self, matrix: list)->list:
       '''
+      player cho qlearning luôn là player1 (Hàm chỉ tính trạng thái cho player1)
+      '''
+      temp = Node(True,not(self.humanFirst), [])
+      temp.generate(matrix)
+      piece_counters = []
+      for item in temp.child:
+         prePath = self.getNext(item[0], item[1], True)
+         piece_counters.append(self.countForState())
+         self.getBack(prePath)
+      return piece_counters
+
+
+   def reward_function(self, current, next):
+      """
+      Return reward when transitioning from current to next
+      """
       pass
 
+   def qLearning(self):
+      learning_rating = 0.3  # may be changed
+      discount_factor = 0.9  # may be changed
+      q_table_size = [20]
+      num_of_action = 3
+      q_table = np.random.uniform(low=-5, high=5, size=(q_table_size + [num_of_action]))
+      num_game_to_train = 100
+
+      for index in range(num_game_to_train):
+         done = False
+         current_state = NEXT_STATE_WHEN_PLAYER2_PLAY_FIRST
+
+         while not done:
+            action = np.argmax(q_table[current_state])
+
+            next_state = GET_MOVE_BY_action
+            reward = self.reward_function(current_state, next_state)
+
+            if HAVE_WINNER:
+               done = True
+               print("Finish one match.")
+            else:
+               current_q_value = q_table[current_state + (action,)]
+               new_q_value = (1 - learning_rating) * current_q_value + learning_rating * (
+                          reward + discount_factor + np.max(q_table[next_state]))
+
+               q_table[current_state + (action,)] = new_q_value
+
+               # hàm di chuyển của minimax lấy qua cho chạy với next_state, rồi lưu next_state vào current_state để chạy vòng lặp
+               """
+               move of player2
+               """
+               current_state = next_state
+
+      print(q_table)
+      # the end: sử dụng q_table này để move với mỗi trạng thái.
 
