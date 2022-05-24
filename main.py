@@ -277,15 +277,15 @@ if __name__ == "__main__":
          Lưu ý:
          - Nếu là người đấu với Machinelearning: choose = "1" và player1 (Thêm đk j tùy)
          - Nếu là machinelearning đấu với minimax: choose = "2" và
-            player1 là minimax --> player1
-            player2 là DecisionTree --> player2
+            player2 là minimax --> player2
+            player1 là DecisionTree --> player1
          '''
 
          if choose == "1":
             player1 = DecisionTree()
          else:
-            player1 = Minimax(head.matrix, head.firstPlayer2)
-            player2 = DecisionTree()
+            player2 = Minimax(head.matrix, head.firstPlayer2)
+            player1 = DecisionTree()
 
          while running:
             for event in pygame.event.get():
@@ -358,26 +358,18 @@ if __name__ == "__main__":
                   exit(0)
 
             #switch lượt, dành cho Minimax
-            if not(head.turnPlayer2):
-               # Tới lượt máy, đo thời gian thực thi của máy.
+            if head.turnPlayer2:
+               # Nếu chế độ máy vs máy, player2 là minimax. 
                if choose == "2":
                   if not(head.gg):
-                     executeTime = time.time() 
-                     player1.countPlayer1, player1.countPlayer1King, player1.countPlayer2, player1.countPlayer2King = countPlayer1, countPlayer1King, countPlayer2, countPlayer2King
-                     player1.playerTurn(1, depth)
-                     executeTime = time.time() - executeTime
-                     head.turnPlayer2 = True
-               elif choose == "1":
-                  current, next = player1.playerTurn()
-                  if head.movePlayer1(current, next):
-                     head.turnPlayer2 = not(head.turnPlayer2)
-                  else:
-                     print("Di chuyen loi: ", end = '')
-                     print(current, next)
+                     player2.countPlayer1, player2.countPlayer1King, player2.countPlayer2, player2.countPlayer2King = countPlayer1, countPlayer1King, countPlayer2, countPlayer2King
+                     player2.playerTurn(2, depth)
+                     head.turnPlayer2 = False
+
             else:
-               if choose == "2":
-                  current, next = player2.playerTurn()
-               if head.movePlayer2(current, next):
+               # Nếu chế độ người vs máy hoặc máy vs máy: player1 luôn là machine learning
+               current, next = player1.playerTurn()
+               if head.movePlayer1(current, next):
                   head.turnPlayer2 = not(head.turnPlayer2)
                else:
                   print("Di chuyen loi: ", end = '')
