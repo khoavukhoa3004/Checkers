@@ -64,7 +64,7 @@ if __name__ == "__main__":
       while running:
          for event in pygame.event.get():
             if event.type == pygame.QUIT:
-               running ==False
+               running = False
                pygame.quit()
                exit(0)
          countPlayer1, countPlayer1King, countPlayer2, countPlayer2King = head.countPlayer()
@@ -182,7 +182,7 @@ if __name__ == "__main__":
                exit(0)
             for event in pygame.event.get():
                if event.type == pygame.QUIT:
-                  running ==False
+                  running = False
                   pygame.quit()
                   exit(0)
             countPlayer1, countPlayer1King, countPlayer2, countPlayer2King = head.countPlayer()
@@ -282,7 +282,7 @@ if __name__ == "__main__":
          '''
 
          if choose == "1":
-            player1 = DecisionTree()
+            player1 = Minimax(head.matrix, head.firstPlayer2)
          else:
             player2 = Minimax(head.matrix, head.firstPlayer2)
             player1 = DecisionTree()
@@ -290,7 +290,7 @@ if __name__ == "__main__":
          while running:
             for event in pygame.event.get():
                if event.type == pygame.QUIT:
-                  running ==False
+                  running = False
                   pygame.quit()
                   exit(0)
             countPlayer1, countPlayer1King, countPlayer2, countPlayer2King = head.countPlayer()

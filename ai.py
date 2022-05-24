@@ -281,5 +281,11 @@ class Minimax:
    def value(self)->int:
       return self.countPlayer1 - self.countPlayer2
       #return self.countPlayer1 - self.countPlayer2 + self.countPlayer1King*2 - self.countPlayer2King*2
+   def qLearning(self):
+      '''
+      lưu ý: getNext và getBack xử lý trên self.root.
+
+      '''
+      pass
 
 
