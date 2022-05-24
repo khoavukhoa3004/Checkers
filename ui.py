@@ -1,3 +1,4 @@
+from ast import Num
 from asyncio.windows_events import NULL
 import data
 import pygame
@@ -52,6 +53,25 @@ opponent_font = pygame.font.Font(None, 30)
 your_font = pygame.font.Font(None, 30)
 your_turn_font = pygame.font.Font(None, 40)
 
+hisLo = {
+   1: [7,6], 2: [7,4], 3: [7,2], 4: [7,0],
+   5: [6,7], 6: [6,5], 7: [6,3], 8:[6,1],
+   9: [5,6],10:[5,4], 11: [5,2],12:[5,0],
+  13: [4,7],14:[4,5], 15: [4,3],16:[4,1],
+  17: [3,6],18:[3,4], 19: [3,2],20:[3,0],
+  21: [2,7],22:[2,5], 23: [2,3],24:[2,1],
+  25: [1,6],26:[1,4], 27: [1,2],28:[1,0],
+  29: [0,7],30:[0,5], 31: [0,3],32:[0,1],
+}
+'''
+firstPlayer2, 1 3 2 4 player2 - player1,   
+'''
+def get_key(val):
+   for key, value in hisLo.items():
+      if val == value:
+            return key
+ 
+   return "key doesn't exist"
 
 
 
@@ -149,6 +169,10 @@ class GameControl:
       #self.ggButton = ElementInterface(self.display_surface,(500, 700), )
       self.ggButton = Button((700,650),120, 50, "Dau hang!")
       self.gg = False
+
+      self.history = ""
+      self.his2 = ""
+      self.resetHis()
    
    # Nếu bạn đi trước, first = false (có nghĩa là máy đi sau) và bạn cầm quân trắng (type = 1)
    def setDefaultGame(self):
@@ -233,6 +257,9 @@ class GameControl:
                      # quan trọng, bước này để run player2 chọn, nếu đi thành công thì set turnPlayer2 = false
                      if len(self.actionQueue) == 2:
                         if self.moveInterfacePlayer2():
+                           if not(self.firstPlayer2) :
+                              self.saveTempHis()
+                              pass
                            self.turnPlayer2 = False
                         self.actionQueue.clear()                       
                      # Nếu hàng đợi == 2: bắt đầu kiểm tra 2 điểm chọn có đúng với suggest ko, nếu đúng thì move, nếu không thì xóa data cho lại từ đầu
@@ -258,6 +285,9 @@ class GameControl:
                      # quan trọng, bước này để run player1 chọn, nếu đi thành công thì set turnPlayer2 = True
                      if len(self.actionQueue) == 2:
                         if self.moveInterfacePlayer1():
+                           if self.firstPlayer2:
+                              self.saveTempHis()
+                              pass
                            self.turnPlayer2 = True
                         self.actionQueue.clear()                       
                      # Nếu hàng đợi == 2: bắt đầu kiểm tra 2 điểm chọn có đúng với suggest ko, nếu đúng thì move, nếu không thì xóa data cho lại từ đầu
@@ -305,6 +335,8 @@ class GameControl:
       move = False
       if self.interfaceMatrix[end[0]][end[1]].suggest:   # Nếu vị trí end được chấp nhận (suggest tại đó = True)
          move = True
+         self.his2 += " "+str(get_key(start)) + " " + str(get_key(end))
+
          if self.matrix[end[0]][end[1]] == 0:            # Nếu vị trí end rỗng
             self.matrix[end[0]][end[1]] = self.matrix[start[0]][start[1]]
             self.matrix[start[0]][start[1]] = 0
@@ -399,6 +431,9 @@ class GameControl:
       move = False
       if self.interfaceMatrix[end[0]][end[1]].suggest:
          move = True
+
+         self.his2 += " "+str(get_key(start)) + " " + str(get_key(end))
+
          if self.matrix[end[0]][end[1]] == 0:
             self.matrix[end[0]][end[1]] = self.matrix[start[0]][start[1]]
             self.matrix[start[0]][start[1]] = 0
@@ -536,6 +571,15 @@ class GameControl:
                      count2King += 1
       return count1, count1King, count2, count2King
 
+   def saveTempHis(self):
+      #count1, count1King, count2, count2King = self.countPlayer()
+
+      #self.history +=" " + self.his2 + " " + str(count2 - count1)
+      self.history +=" " + self.his2
+      self.his2 = ","
+   def resetHis(self):
+      self.history = str(int(self.firstPlayer2))
+      self.his2 = ","
 
 
 

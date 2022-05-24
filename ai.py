@@ -43,7 +43,6 @@ class Minimax:
       self.root = None
       self.setNode(matrix)
       self.humanFirst = humanFirst
-      self.player = True
       self.countPlayer1 = 12
       self.countPlayer2 = 12
       self.countPlayer1King = 0
@@ -96,15 +95,20 @@ class Minimax:
                Mx = NewMx
                bestNext = item
       return Mx, bestNext
-   def botTurn(self, depth):
+   def playerTurn(self, numPlayer, depth):
       '''
       Lượt của máy, gọi hàm này
       '''
       if self.countPlayer1 == 0 or self.countPlayer2 == 0:
          return
-      temp = Node(self.player,not(self.humanFirst), [])
-      Mx, bestNext = self.minimax(temp, depth, True)  
-      self.getNext(bestNext[0], bestNext[1], True)
+      
+      if numPlayer == 1:
+         temp = Node(True,not(self.humanFirst), [])
+         Mx, bestNext = self.minimax(temp, depth, True)
+         return self.getNext(bestNext[0], bestNext[1], True)
+      temp = Node(False,self.humanFirst, [])
+      Mx, bestNext = self.minimax(temp, depth, False)  
+      return self.getNext(bestNext[0], bestNext[1], False)
 
 
    
