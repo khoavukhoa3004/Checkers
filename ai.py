@@ -2,7 +2,10 @@ import string
 from rule import *
 from data import data
 import numpy as np
-
+NEXT_STATE_WHEN_PLAYER2_PLAY_FIRST = []
+GET_MOVE_BY_action = []
+def HAVE_WINNER():
+   return False
 ''''
 player = True: lấy max
 player = False: lấy min
@@ -119,6 +122,9 @@ class Minimax:
       '''
       Ma trận đi đến vị trí kế tiếp, trả về danh sách các vị trí đã thay đổi
       '''
+      if currentPos == [] or nextPos == []:
+         return []
+
       prePath = []
       if self.root[nextPos[0]][nextPos[1]] == 0:
          # Nếu ô kế tiếp là ô trống
@@ -352,11 +358,19 @@ class Minimax:
       return piece_counters
 
 
-   def reward_function(self, current, next):
-      """
-      Return reward when transitioning from current to next
-      """
-      pass
+   def reward_function(state_info1, state_info2):
+    """
+    Reward for transitioning from state with state_info1 to state with state_info2.
+
+    NOTE:
+    1) do something better with where/how this is implemented
+    2) should give some kind of negative for tieing
+    """
+    if state_info2[1] == 0 and state_info2[3] == 0:
+        return 12
+    if state_info2[0] == 0 and state_info2[2] == 0:
+        return -12
+    return state_info2[0]-state_info1[0] + 2*(state_info2[2]-state_info1[2])-(state_info2[1]-state_info1[1])-2*(state_info2[3]-state_info1[3])
 
    def qLearning(self):
       learning_rating = 0.3  # may be changed
@@ -376,7 +390,7 @@ class Minimax:
             next_state = GET_MOVE_BY_action
             reward = self.reward_function(current_state, next_state)
 
-            if HAVE_WINNER:
+            if HAVE_WINNER():
                done = True
                print("Finish one match.")
             else:

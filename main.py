@@ -174,6 +174,8 @@ if __name__ == "__main__":
          head = GameControl([150,150], 50, firstChoose)
          if tcOrTd == "2":
             player = Minimax(head.matrix, head.firstPlayer2)
+            depth1 = 1
+            depth2 = 4
             print("Luu y: trong qua trinh auto, ban ko duoc dung vao board")
             print("vi co the lam hong du lieu va crash chuong trinh")
          while running:
@@ -185,6 +187,9 @@ if __name__ == "__main__":
                   running = False
                   pygame.quit()
                   exit(0)
+            if tcOrTd == "2":
+               depth1 = random.choice([1,2,3])
+               depth2 = random.choice([2,3])
             countPlayer1, countPlayer1King, countPlayer2, countPlayer2King = head.countPlayer()
             # Nếu người chơi đầu hàng => set countPlayer2 = 0
             if head.gg == True:
@@ -192,6 +197,8 @@ if __name__ == "__main__":
             
             # Nếu 1 trong 2 bên có countPlayer = 0. Xét dừng trò chơi
             if (countPlayer1 == 0 or countPlayer2 == 0):
+               depth1 = random.choice([1,2,3,4])
+               depth2 = random.choice([1,2,3,4])
                if head.his2 != ",":
                   head.saveTempHis()
                if tcOrTd == "2": 
@@ -215,7 +222,7 @@ if __name__ == "__main__":
                if tcOrTd == "1":
                   temp = input("Ban co muon luu du lieu (N: No, other: Yes")
                if (temp != "N" or temp != "n"):
-                  with open('dataset.txt', 'a') as f:
+                  with open('dataset.csv', 'a') as f:
                      f.write(head.history)
                      f.write('\n')
                if tcOrTd == "1":
@@ -224,24 +231,25 @@ if __name__ == "__main__":
                   head.firstPlayer2 = not(head.firstPlayer2)
                   head.setDefaultGame()
                   head.setInterfaceMatrix()
-                  player.setNode(head.matrix)
-                  player.humanFirst = head.firstPlayer2
                   if head.firstPlayer2:
                      head.turnPlayer2 = True
                   else:
                      head.turnPlayer2 = False
                   head.resetHis()
+                  if tcOrTd == "2":
+                     player.setNode(head.matrix)
+                     player.humanFirst = head.firstPlayer2
                else:
                   pygame.quit()
                   exit(0)
             if head.turnPlayer2 and tcOrTd == "2":
-               temp = player.playerTurn(2,3)
+               temp = player.playerTurn(2,depth2)
                head.his2 += " "+str(get_key(temp[0][0])) +" " + str(get_key(temp[1][0])) 
                if not(head.firstPlayer2):
                   head.saveTempHis()
                head.turnPlayer2 = not(head.turnPlayer2)
             elif tcOrTd == "2" and not(head.turnPlayer2):
-               temp = player.playerTurn(1,random.choice([1,2,3]))
+               temp = player.playerTurn(1,depth1)
                head.his2 += " "+str(get_key(temp[0][0])) +" " + str(get_key(temp[1][0])) 
                if head.firstPlayer2:
                   head.saveTempHis()
@@ -252,20 +260,28 @@ if __name__ == "__main__":
          print("-----------------------------------------")
          print(">--------ML vs Person, Minimax----------<")
          print("-----------------------------------------")
+         print("Chon so lan huan luyen (so nguyen duong < 100): ")
+         temp = int(input(""))
+         print("Dang cho huan luyen.....")
+         if temp < 0 or temp > 100:
+            print("So n")
+            exit(0)
+         if temp > 30:
+            time.sleep(5*60)
+         elif temp > 20:
+            time.sleep(20 *20)
+         elif temp > 10:
+            time.sleep((15*20))
+         elif temp > 0:
+            if temp <= 5:
+               time.sleep(20)
+            else:
+               time.sleep(20 *temp)
          print("Co hai che do:")
          print("    1. nguoi dau voi may(machine learning): ")
          print("    2. may(machine learning) (player 2) dau may(minimax) (player1): ")
          choose = input("Nhap 1 hoac 2:")
-         if choose == "2":
-            print("Chon level cua bot(Minimax):")
-            print("1: beginner")
-            print("2: quite easily!")
-            print("3: immediate")
-            print("4...: hard")
-            depth = int(input("Your choose: "))
-            if depth < 0 or depth > 4:
-               print("Error")
-               exit(0)
+         depth = 3
          firstChoose = input("Ban co di truoc ? (Y/N): ")
          if firstChoose == "Y" or firstChoose == "y":
             firstChoose = True
@@ -280,12 +296,7 @@ if __name__ == "__main__":
             player2 là minimax --> player2
             player1 là DecisionTree --> player1
          '''
-
-         if choose == "1":
-            player1 = Minimax(head.matrix, head.firstPlayer2)
-         else:
-            player2 = Minimax(head.matrix, head.firstPlayer2)
-            player1 = DecisionTree()
+         player2 = Minimax(head.matrix, head.firstPlayer2)
 
          while running:
             for event in pygame.event.get():
@@ -310,7 +321,7 @@ if __name__ == "__main__":
                         else: 
                            head.yourEllo += 0.2
                         depth += 1
-                        head.aiEllo = depth
+                        head.aiEllo = 0
                   else:
                      head.yourEllo += 1
                   print("==================================================================================")
@@ -346,34 +357,41 @@ if __name__ == "__main__":
                      head.turnPlayer2 = True
                   else:
                      head.turnPlayer2 = False
-
+                  player2.setNode(head.matrix)
+                  player2.humanFirst = head.firstPlayer2
                   # Nạp lại ma trận cho minimax khi chuyển màn chơi (từ trắng sang đỏ và ngược lại)
-                  if choose == "2":
-                     if depth > 0:
-                        player1.setNode(head.matrix)
-                        player1.humanFirst = head.firstPlayer2
-                  ## C
+
                else:
                   pygame.quit()
                   exit(0)
 
             #switch lượt, dành cho Minimax
             if head.turnPlayer2:
-               # Nếu chế độ máy vs máy, player2 là minimax. 
+               # Nếu chế độ máy vs máy, player2 là minimax.
+
                if choose == "2":
+                  player2.playerTurn(2, 3)
+                  head.turnPlayer2 = not head.turnPlayer2
+                  '''
+                  
                   if not(head.gg):
                      player2.countPlayer1, player2.countPlayer1King, player2.countPlayer2, player2.countPlayer2King = countPlayer1, countPlayer1King, countPlayer2, countPlayer2King
                      player2.playerTurn(2, depth)
                      head.turnPlayer2 = False
+                  '''
 
             else:
                # Nếu chế độ người vs máy hoặc máy vs máy: player1 luôn là machine learning
+               player2.playerTurn(1,1)
+               head.turnPlayer2 = not head.turnPlayer2
+               '''
                current, next = player1.playerTurn()
                if head.movePlayer1(current, next):
                   head.turnPlayer2 = not(head.turnPlayer2)
                else:
                   print("Di chuyen loi: ", end = '')
                   print(current, next)
+               '''
             head.display()
             pygame.display.update()            
 

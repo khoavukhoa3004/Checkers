@@ -172,6 +172,7 @@ class GameControl:
 
       self.history = ""
       self.his2 = ""
+      self.num_round = 1
       self.resetHis()
    
    # Nếu bạn đi trước, first = false (có nghĩa là máy đi sau) và bạn cầm quân trắng (type = 1)
@@ -576,10 +577,12 @@ class GameControl:
 
       #self.history +=" " + self.his2 + " " + str(count2 - count1)
       self.history +=" " + self.his2
-      self.his2 = ","
+      self.num_round += 1
+      self.his2 = " " +str(self.num_round) + "."
    def resetHis(self):
       self.history = str(int(self.firstPlayer2))
-      self.his2 = ","
+      self.num_round = 1
+      self.his2 = " " + str(self.num_round) + "."
 
 
 
